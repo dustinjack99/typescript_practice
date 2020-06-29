@@ -5,6 +5,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var ProjStatus;
+(function (ProjStatus) {
+    ProjStatus[ProjStatus["Active"] = 0] = "Active";
+    ProjStatus[ProjStatus["Finished"] = 1] = "Finished";
+})(ProjStatus || (ProjStatus = {}));
+class Project {
+    constructor(id, title, desc, ppl, status) {
+        this.id = id;
+        this.title = title;
+        this.desc = desc;
+        this.ppl = ppl;
+        this.status = status;
+    }
+}
 class ProjState {
     constructor() {
         this.listeners = [];
@@ -21,12 +35,7 @@ class ProjState {
         this.listeners.push(listenFn);
     }
     addProject(title, desc, numPpl) {
-        const newProj = {
-            id: Math.random().toString(),
-            title: title,
-            description: desc,
-            peopel: numPpl,
-        };
+        const newProj = new Project(Math.random().toString(), title, desc, numPpl, ProjStatus.Active);
         this.projects.push(newProj);
         for (const listenFn of this.listeners) {
             listenFn(this.projects.slice());
