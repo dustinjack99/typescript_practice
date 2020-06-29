@@ -1,3 +1,40 @@
+//state management
+
+class ProjState {
+  private listeners: any[] = [];
+  private projects: any[] = [];
+  private static instance: ProjState;
+
+  private constructor() {}
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjState();
+    return this.instance;
+  }
+
+  addListener(listenFn: Function) {
+    this.listeners.push(listenFn);
+  }
+
+  addProject(title: string, desc: string, numPpl: number) {
+    const newProj = {
+      id: Math.random().toString(),
+      title: title,
+      description: desc,
+      peopel: numPpl,
+    };
+    this.projects.push(newProj);
+    for (const listenFn of this.listeners) {
+      listenFn(this.projects.slice());
+    }
+  }
+}
+
+const projState = ProjState.getInstance();
+
 //validation
 interface Validate {
   value: string | number;
@@ -39,6 +76,57 @@ function autobind(_1: any, _2: string, desc: PropertyDescriptor) {
     },
   };
   return adjDesc;
+}
+
+// projectList
+class ProjList {
+  templateEl: HTMLTemplateElement;
+  hostEl: HTMLDivElement;
+  element: HTMLElement;
+  assignedProjs: any[];
+
+  constructor(private type: 'active' | 'finished') {
+    this.templateEl = document.getElementById(
+      'project-list'
+    )! as HTMLTemplateElement;
+    this.hostEl = document.getElementById('app')! as HTMLDivElement;
+    this.assignedProjs = [];
+
+    const importedNode = document.importNode(this.templateEl.content, true);
+
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${this.type}-projects`;
+
+    ProjState.addListener((projects: any[]) => {
+      this.assignedProjs = projects;
+      this.renderProjs();
+    });
+
+    this.attach();
+    this.renderContent();
+  }
+
+  private renderProjs() {
+    const listEl = document.getElementById(
+      `${this.type}-projects-list`
+    )! as HTMLUListElement;
+    for (const prjItrm of this.assignedProjs) {
+      const listItem = document.createElement('li');
+      listItem.textContent = prjItrm.title;
+      listEl.appendChild(listItem);
+    }
+  }
+
+  private renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('h2')!.textContent =
+      this.type.toUpperCase() + ' projects';
+  }
+
+  private attach() {
+    this.hostEl.insertAdjacentElement('beforeend', this.element);
+  }
 }
 
 //projectinput class
@@ -112,7 +200,7 @@ class ProjectInp {
     const userInp = this.gatherUserInp();
     if (Array.isArray(userInp)) {
       const [title, desc, ppl] = userInp;
-      console.log(title, desc, ppl);
+      ProjState.addProject(title, desc, ppl);
       this.clearInps();
     }
   }
@@ -127,3 +215,5 @@ class ProjectInp {
 }
 
 const projInp = new ProjectInp();
+const activeList = new ProjList('active');
+const finishedList = new ProjList('finished');
