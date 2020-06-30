@@ -114,7 +114,7 @@ class ProjList {
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
 
-    ProjState.addListener((projects: Project[]) => {
+    projState.addListener((projects: Project[]) => {
       this.assignedProjs = projects;
       this.renderProjs();
     });
@@ -217,7 +217,7 @@ class ProjectInp {
     const userInp = this.gatherUserInp();
     if (Array.isArray(userInp)) {
       const [title, desc, ppl] = userInp;
-      ProjState.addProject(title, desc, ppl);
+      projState.addProject(title, desc, ppl);
       this.clearInps();
     }
   }
