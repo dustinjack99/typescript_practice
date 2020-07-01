@@ -62,22 +62,36 @@ interface Validate {
   max?: number;
 }
 
-function valid(validateInp: Validate) {
+function valid(validatableInput: Validate) {
   let isValid = true;
-  if (validateInp.required) {
-    isValid = isValid && validateInp.value.toString().trim().length !== 0;
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
   }
-  if (validateInp.minLength != null && typeof validateInp.value === 'string') {
-    isValid = isValid && validateInp.value.length > validateInp.minLength;
+  if (
+    validatableInput.minLength != null &&
+    typeof validatableInput.value === 'string'
+  ) {
+    isValid =
+      isValid && validatableInput.value.length >= validatableInput.minLength;
   }
-  if (validateInp.maxLength != null && typeof validateInp.value === 'string') {
-    isValid = isValid && validateInp.value.length < validateInp.maxLength;
+  if (
+    validatableInput.maxLength != null &&
+    typeof validatableInput.value === 'string'
+  ) {
+    isValid =
+      isValid && validatableInput.value.length <= validatableInput.maxLength;
   }
-  if (validateInp.min != null && typeof validateInp.value === 'number') {
-    isValid = isValid && validateInp.value > validateInp.min;
+  if (
+    validatableInput.min != null &&
+    typeof validatableInput.value === 'number'
+  ) {
+    isValid = isValid && validatableInput.value >= validatableInput.min;
   }
-  if (validateInp.max != null && typeof validateInp.value === 'number') {
-    isValid = isValid && validateInp.value < validateInp.max;
+  if (
+    validatableInput.max != null &&
+    typeof validatableInput.value === 'number'
+  ) {
+    isValid = isValid && validatableInput.value <= validatableInput.max;
   }
   return isValid;
 }
@@ -115,7 +129,13 @@ class ProjList {
     this.element.id = `${this.type}-projects`;
 
     projState.addListener((projects: Project[]) => {
-      this.assignedProjs = projects;
+      const relevantProjs = projects.filter(prj => {
+        if (this.type === 'active') {
+          return prj.status === ProjStatus.Active;
+        }
+        return prj.status === ProjStatus.Finished;
+      });
+      this.assignedProjs = relevantProjs;
       this.renderProjs();
     });
 
@@ -127,6 +147,7 @@ class ProjList {
     const listEl = document.getElementById(
       `${this.type}-projects-list`
     )! as HTMLUListElement;
+    listEl.innerHTML = '';
     for (const prjItrm of this.assignedProjs) {
       const listItem = document.createElement('li');
       listItem.textContent = prjItrm.title;
@@ -177,30 +198,30 @@ class ProjectInp {
   }
 
   private gatherUserInp(): [string, string, number] {
-    const title = this.titleInpEl.value;
-    const desc = this.descInpEl.value;
-    const ppl = this.pplInpEl.value;
+    const usertitle = this.titleInpEl.value;
+    const userdesc = this.descInpEl.value;
+    const userppl = this.pplInpEl.value;
 
     const titleVal: Validate = {
-      value: title,
+      value: usertitle,
       required: true,
     };
     const descVal: Validate = {
-      value: desc,
+      value: userdesc,
       required: true,
       minLength: 5,
     };
     const pplVal: Validate = {
-      value: ppl,
+      value: userppl,
       required: true,
       min: 1,
       max: 5,
     };
 
-    if (valid(titleVal) || valid(descVal) || valid(pplVal)) {
+    if (!valid(titleVal) || !valid(descVal) || !valid(pplVal)) {
       throw new Error('invalid input');
     } else {
-      return [title, desc, +ppl];
+      return [usertitle, userdesc, +userppl];
     }
   }
 
