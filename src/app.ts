@@ -1,3 +1,15 @@
+// dnd interfaces
+interface Draggable {
+  dragStart(event: DragEvent): void;
+  dragEnd(event: DragEvent): void;
+}
+
+interface DragTarget {
+  dragOverHandler(event: DragEvent): void;
+  dropHandler(event: DragEvent): void;
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 //project type
 enum ProjStatus {
   Active,
@@ -152,6 +164,49 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+//projItem class
+class ProjItem extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable {
+  private project: Project;
+
+  get persons() {
+    if (this.project.ppl === 1) {
+      return '1 person';
+    } else {
+      return `${this.project.ppl} persons`;
+    }
+  }
+
+  constructor(hostId: string, project: Project) {
+    super('single-project', hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  @autobind
+  dragStart(event: DragEvent) {
+    console.log(event);
+  }
+
+  @autobind
+  dragEnd(event: DragEvent) {
+    console.log('dragend');
+  }
+
+  configure() {
+    this.element.addEventListener('dragstart', this.dragStart);
+    this.element.addEventListener('dragend', this.dragEnd);
+  }
+
+  renderContent() {
+    this.element.querySelector('h2')!.textContent = this.project.title;
+    this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
+    this.element.querySelector('h4')!.textContent = this.project.desc;
+  }
+}
+
 // projectList
 class ProjList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjs: Project[];
@@ -190,9 +245,7 @@ class ProjList extends Component<HTMLDivElement, HTMLElement> {
     )! as HTMLUListElement;
     listEl.innerHTML = '';
     for (const prjItrm of this.assignedProjs) {
-      const listItem = document.createElement('li');
-      listItem.textContent = prjItrm.title;
-      listEl.appendChild(listItem);
+      new ProjItem(this.element.querySelector('ul')!.id, prjItrm);
     }
   }
 }

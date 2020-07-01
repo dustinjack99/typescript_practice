@@ -99,6 +99,43 @@ class Component {
         this.hostEl.insertAdjacentElement(insertAtBeginning ? 'afterbegin' : 'beforeend', this.element);
     }
 }
+class ProjItem extends Component {
+    constructor(hostId, project) {
+        super('single-project', hostId, false, project.id);
+        this.project = project;
+        this.configure();
+        this.renderContent();
+    }
+    get persons() {
+        if (this.project.ppl === 1) {
+            return '1 person';
+        }
+        else {
+            return `${this.project.ppl} persons`;
+        }
+    }
+    dragStart(event) {
+        console.log(event);
+    }
+    dragEnd(event) {
+        console.log('dragend');
+    }
+    configure() {
+        this.element.addEventListener('dragstart', this.dragStart);
+        this.element.addEventListener('dragend', this.dragEnd);
+    }
+    renderContent() {
+        this.element.querySelector('h2').textContent = this.project.title;
+        this.element.querySelector('h3').textContent = this.persons + ' assigned';
+        this.element.querySelector('h4').textContent = this.project.desc;
+    }
+}
+__decorate([
+    autobind
+], ProjItem.prototype, "dragStart", null);
+__decorate([
+    autobind
+], ProjItem.prototype, "dragEnd", null);
 class ProjList extends Component {
     constructor(type) {
         super('project-list', 'app', false, `${type}-projects`);
@@ -129,9 +166,7 @@ class ProjList extends Component {
         const listEl = document.getElementById(`${this.type}-projects-list`);
         listEl.innerHTML = '';
         for (const prjItrm of this.assignedProjs) {
-            const listItem = document.createElement('li');
-            listItem.textContent = prjItrm.title;
-            listEl.appendChild(listItem);
+            new ProjItem(this.element.querySelector('ul').id, prjItrm);
         }
     }
 }
