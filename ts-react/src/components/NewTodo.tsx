@@ -5,8 +5,6 @@ type NewTodoProps = {
 };
 
 const NewTodo: React.FC<NewTodoProps> = props => {
-  useEffect();
-
   const textInputRef = useRef<HTMLInputElement>(null);
 
   const todoSubHandle = (event: React.FormEvent) => {
