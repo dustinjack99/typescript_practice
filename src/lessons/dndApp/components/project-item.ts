@@ -1,7 +1,7 @@
-import { Draggable } from '../models/drag-drop.js';
-import { Project } from '../models/projects.js';
-import { Component } from './base-components.js';
-import { autobind } from '../decorators/autobind.js';
+import { Draggable } from '../models/drag-drop';
+import { Project } from '../models/projects';
+import { Component } from './base-components';
+import { autobind } from '../decorators/autobind';
 //projItem class
 export class ProjItem extends Component<HTMLUListElement, HTMLLIElement>
   implements Draggable {
@@ -30,7 +30,7 @@ export class ProjItem extends Component<HTMLUListElement, HTMLLIElement>
   }
 
   @autobind
-  dragEnd(event: DragEvent) {
+  dragEnd(_: DragEvent) {
     console.log('dragend');
   }
 
