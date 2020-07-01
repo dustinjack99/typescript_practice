@@ -1,15 +1,17 @@
+import { ProjStatus, Project } from '../models/projects.js';
+
 //state management
 
-type Listener<T> = (items: T[]) => void;
+export type Listener<T> = (items: T[]) => void;
 
-class State<T> {
+export class State<T> {
   protected listeners: Listener<T>[] = [];
 
   addListener(listenFn: Listener<T>) {
     this.listeners.push(listenFn);
   }
 }
-class ProjState extends State<Project> {
+export class ProjState extends State<Project> {
   private projects: Project[] = [];
   private static instance: ProjState;
 
@@ -52,4 +54,4 @@ class ProjState extends State<Project> {
   }
 }
 
-const projState = ProjState.getInstance();
+export const projState = ProjState.getInstance();
